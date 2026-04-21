@@ -344,5 +344,12 @@ class AppLauncher:
 
 if __name__ == "__main__":
     root = tk.Tk()
+
+    # 设置窗口图标
+    try:
+        root.iconbitmap("al.ico")
+    except:
+        pass
+
     app = AppLauncher(root)
     root.mainloop()
