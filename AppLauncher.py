@@ -231,6 +231,9 @@ class AppLauncher:
         self.app_tree.bind("<Button-1>", self.on_touch_start)
         self.app_tree.bind("<B1-Motion>", self.on_touch_scroll)
         self.app_tree.bind('<<TreeviewSelect>>', self.on_app_select)
+
+        self.app_tree.bind('<Enter>', self.on_app_hover)
+        self.app_tree.bind('<Motion>', self.on_app_hover)
         
         scrollbar = ttk.Scrollbar(list_frame, orient=tk.VERTICAL, command=self.app_tree.yview)
         scrollbar.grid(row=0, column=1, sticky=(tk.N, tk.S))
@@ -289,6 +292,16 @@ class AppLauncher:
             if filter_text in name.lower():
                 icon = self.get_app_icon(self.apps[name]["app_path"])
                 self.app_tree.insert("", "end", iid=name, text="  "+name, image=icon)
+
+    def on_app_hover(self, event):
+        item = self.app_tree.identify_row(event.y)
+        if item:
+            app_name = item
+            if app_name in self.apps:
+                data = self.apps[app_name]
+                self.detail_name.config(text=app_name)
+                self.detail_env.config(text=data["env_path"] or "未设置")
+                self.detail_path.config(text=data["app_path"])
 
     def on_app_select(self, event):
         sel = self.app_tree.selection()
