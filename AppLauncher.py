@@ -49,6 +49,10 @@ class AppLauncher:
         # 初始化触摸滚动监听
         self.setup_touch_scrolling()
         
+        # 获取本窗口的 Windows 句柄（用于焦点判断）
+        self.root.update()  # 确保窗口已创建
+        self.hwnd = ctypes.windll.user32.GetParent(self.root.winfo_id())
+        
         # 初始化手柄支持（XInput）
         self.init_xinput()
     
@@ -150,6 +154,18 @@ class AppLauncher:
     def poll_xinput(self):
         """定期轮询 XInput 手柄状态"""
         if not self.xinput_available:
+            return
+
+        # 检查本程序是否为前台窗口（焦点检查）
+        try:
+            foreground_hwnd = ctypes.windll.user32.GetForegroundWindow()
+        except:
+            foreground_hwnd = None
+
+        # 只有前台窗口是自己时才响应手柄操作
+        if foreground_hwnd != self.hwnd:
+            # 不是前台窗口，继续轮询但忽略按键
+            self.root.after(50, self.poll_xinput)
             return
 
         # 直接使用已定义的结构体类型
